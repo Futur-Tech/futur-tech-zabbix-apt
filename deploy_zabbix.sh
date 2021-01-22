@@ -13,3 +13,5 @@ if [[ ${OS_FAMILY} =~ (Ubuntu|Debian) ]]; then
     echo 'APT::Periodic::Enable "1";' > /etc/apt/apt.conf.d/02custix_software_updates
     echo 'APT::Periodic::Update-Package-Lists "1";' >> /etc/apt/apt.conf.d/02custix_software_updates
 fi
+
+systemctl restart zabbix-agent.service
