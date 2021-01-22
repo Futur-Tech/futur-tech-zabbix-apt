@@ -8,8 +8,8 @@ Custom Zabbix Scripts
 # Deploy
 ## Zabbix
 
-    #~ git clone https://github.com/sergiotocalini/custix.git
-    #~ ./custix/deploy_zabbix.sh
+    #~ git clone https://github.com/GuillaumeHullin/custix-software-updates
+    #~ ./custix-software-updates/deploy_zabbix.sh
     #~
 
 # Scripts

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>5.0</version>
+    <date>2021-01-22T16:56:50Z</date>
+    <groups>
+        <group>
+            <name>Templates/Futur-Tech</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>Template Futur-Tech Module Linux Software Updates</template>
+            <name>Template Futur-Tech Module Linux Software Updates</name>
+            <groups>
+                <group>
+                    <name>Templates/Futur-Tech</name>
+                </group>
+            </groups>
+            <applications>
+                <application>
+                    <name>Software Updates</name>
+                </application>
+            </applications>
+            <items>
+                <item>
+                    <name>[Custix] SW: Full Details</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>custix[sw-info, full]</key>
+                    <delay>2h</delay>
+                    <history>1w</history>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>Software Updates</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>[Custix] SW: Release</name>
+                    <type>DEPENDENT</type>
+                    <key>custix[sw-info, release]</key>
+                    <delay>0</delay>
+                    <history>1w</history>
+                    <trends>0</trends>
+                    <value_type>CHAR</value_type>
+                    <inventory_link>OS</inventory_link>
+                    <applications>
+                        <application>
+                            <name>Software Updates</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.release</params>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>custix[sw-info, full]</key>
+                    </master_item>
+                </item>
+                <item>
+                    <name>[Custix] SW: Updates</name>
+                    <type>DEPENDENT</type>
+                    <key>custix[sw-info, updates.normal]</key>
+                    <delay>0</delay>
+                    <history>1w</history>
+                    <trends>30d</trends>
+                    <applications>
+                        <application>
+                            <name>Software Updates</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.updates.normal</params>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>custix[sw-info, full]</key>
+                    </master_item>
+                </item>
+                <item>
+                    <name>[Custix] SW: Updates (Security)</name>
+                    <type>DEPENDENT</type>
+                    <key>custix[sw-info, updates.security]</key>
+                    <delay>0</delay>
+                    <history>1w</history>
+                    <trends>30d</trends>
+                    <applications>
+                        <application>
+                            <name>Software Updates</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.updates.security</params>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>custix[sw-info, full]</key>
+                    </master_item>
+                </item>
+            </items>
+            <macros>
+                <macro>
+                    <macro>{$FS_INODE_CRIT}</macro>
+                    <value>90</value>
+                </macro>
+                <macro>
+                    <macro>{$FS_INODE_WARN}</macro>
+                    <value>80</value>
+                </macro>
+                <macro>
+                    <macro>{$FS_MIN_SPACE}</macro>
+                    <value>10G</value>
+                </macro>
+                <macro>
+                    <macro>{$FS_SPACE_CRIT}</macro>
+                    <value>90</value>
+                </macro>
+                <macro>
+                    <macro>{$FS_SPACE_WARN}</macro>
+                    <value>80</value>
+                </macro>
+                <macro>
+                    <macro>{$NOPROC}</macro>
+                    <value>300</value>
+                </macro>
+                <macro>
+                    <macro>{$SWAP_FREE_SPACE}</macro>
+                    <value>25</value>
+                </macro>
+            </macros>
+        </template>
+    </templates>
+</zabbix_export>
