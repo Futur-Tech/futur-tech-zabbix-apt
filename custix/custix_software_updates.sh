@@ -1,4 +1,4 @@
-#!/usr/bin/env ksh
+#!/usr/bin/env bash
 rcode=0
 PATH=/usr/local/bin:${PATH}
 

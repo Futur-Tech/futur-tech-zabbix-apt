@@ -1,4 +1,4 @@
-#!/usr/bin/env ksh
+#!/usr/bin/env bash
 SOURCE_DIR=$(dirname $0)
 ZABBIX_DIR=/etc/zabbix
 

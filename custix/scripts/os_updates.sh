@@ -1,4 +1,4 @@
-#!/usr/bin/env ksh
+#!/usr/bin/env bash
 SCRIPT_DIR=$(dirname $0)
 SCRIPT_CACHE=${SCRIPT_DIR}/tmp
 
