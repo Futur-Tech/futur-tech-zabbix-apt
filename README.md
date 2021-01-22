@@ -8,19 +8,18 @@ Custom Zabbix Scripts
 # Deploy
 ## Zabbix
 
-    #~ git clone https://github.com/GuillaumeHullin/custix-software-updates
-    #~ ./custix-software-updates/deploy_zabbix.sh
-    #~
+    git clone https://github.com/GuillaumeHullin/custix-software-updates
+    cd custix-software-updates
+    ./deploy_zabbix.sh
+    
 
 # Scripts
-## os_updates
+## Software Update
 The script is checking if there are some updates to apply.
 ### Debian / Ubuntu
 This script uses -s simulation option when invoking apt-get, no root access is needed.
 However, root access is required for updating APT repositories and we can add the following options in apt.conf.d to do it.
 
-    #~ cat /etc/apt/apt.conf.d/02custix
+    cat /etc/apt/apt.conf.d/02custix
     APT::Periodic::Enable "1";
-    APT::Periodic::Update-Package-Lists "1";
-    #~
-    
+    APT::Periodic::Update-Package-Lists "1";    
