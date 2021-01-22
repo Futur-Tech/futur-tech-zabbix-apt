@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>5.0</version>
-    <date>2021-01-22T16:56:50Z</date>
+    <date>2021-01-22T19:02:01Z</date>
     <groups>
         <group>
             <name>Templates/Futur-Tech</name>
@@ -23,13 +23,14 @@
             </applications>
             <items>
                 <item>
-                    <name>[Custix] SW: Full Details</name>
+                    <name>Software Security Updates</name>
                     <type>ZABBIX_ACTIVE</type>
-                    <key>custix[sw-info, full]</key>
+                    <key>custix_software_updates[os_updates,security]</key>
                     <delay>2h</delay>
                     <history>1w</history>
-                    <trends>0</trends>
-                    <value_type>TEXT</value_type>
+                    <trends>30d</trends>
+                    <value_type>FLOAT</value_type>
+                    <units>security update(s) available</units>
                     <applications>
                         <application>
                             <name>Software Updates</name>
@@ -37,72 +38,19 @@
                     </applications>
                 </item>
                 <item>
-                    <name>[Custix] SW: Release</name>
-                    <type>DEPENDENT</type>
-                    <key>custix[sw-info, release]</key>
-                    <delay>0</delay>
-                    <history>1w</history>
-                    <trends>0</trends>
-                    <value_type>CHAR</value_type>
-                    <inventory_link>OS</inventory_link>
-                    <applications>
-                        <application>
-                            <name>Software Updates</name>
-                        </application>
-                    </applications>
-                    <preprocessing>
-                        <step>
-                            <type>JSONPATH</type>
-                            <params>$.release</params>
-                        </step>
-                    </preprocessing>
-                    <master_item>
-                        <key>custix[sw-info, full]</key>
-                    </master_item>
-                </item>
-                <item>
-                    <name>[Custix] SW: Updates</name>
-                    <type>DEPENDENT</type>
-                    <key>custix[sw-info, updates.normal]</key>
-                    <delay>0</delay>
+                    <name>Software Updates</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>custix_software_updates[os_updates,updates]</key>
+                    <delay>2h</delay>
                     <history>1w</history>
                     <trends>30d</trends>
+                    <value_type>FLOAT</value_type>
+                    <units>other update(s) available</units>
                     <applications>
                         <application>
                             <name>Software Updates</name>
                         </application>
                     </applications>
-                    <preprocessing>
-                        <step>
-                            <type>JSONPATH</type>
-                            <params>$.updates.normal</params>
-                        </step>
-                    </preprocessing>
-                    <master_item>
-                        <key>custix[sw-info, full]</key>
-                    </master_item>
-                </item>
-                <item>
-                    <name>[Custix] SW: Updates (Security)</name>
-                    <type>DEPENDENT</type>
-                    <key>custix[sw-info, updates.security]</key>
-                    <delay>0</delay>
-                    <history>1w</history>
-                    <trends>30d</trends>
-                    <applications>
-                        <application>
-                            <name>Software Updates</name>
-                        </application>
-                    </applications>
-                    <preprocessing>
-                        <step>
-                            <type>JSONPATH</type>
-                            <params>$.updates.security</params>
-                        </step>
-                    </preprocessing>
-                    <master_item>
-                        <key>custix[sw-info, full]</key>
-                    </master_item>
                 </item>
             </items>
             <macros>
