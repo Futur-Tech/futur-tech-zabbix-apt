@@ -11,6 +11,7 @@ Custom Zabbix Scripts
     git clone https://github.com/GuillaumeHullin/custix-software-updates
     cd custix-software-updates
     ./deploy_zabbix.sh
+    systemctl restart zabbix-agent.service
     
 
 # Scripts
