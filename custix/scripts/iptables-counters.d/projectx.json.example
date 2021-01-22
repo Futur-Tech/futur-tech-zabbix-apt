@@ -1,0 +1,7 @@
+{
+   "name": "projectx",
+   "filters": {
+      "input": ".*-A CI_.*ACCEPT$",
+      "output": ".*-A CO_.*ACCEPT$"
+   }
+}
