@@ -38,6 +38,7 @@ $S_LOG -d $S_NAME -d "$SUDOERS_ETC" "==== SUDOERS CONFIGURATION ===="
 $S_LOG -d $S_NAME -d "$SUDOERS_ETC" "==============================="
 
 echo "Defaults:zabbix !requiretty" | sudo EDITOR='tee' visudo --file=$SUDOERS_ETC &>/dev/null
+echo "zabbix ALL=(ALL) NOPASSWD:${SRC_DIR}/deploy-update.sh" | sudo EDITOR='tee -a' visudo --file=$SUDOERS_ETC &>/dev/null
 echo "zabbix ALL=(ALL) NOPASSWD:/usr/bin/apt update" | sudo EDITOR='tee -a' visudo --file=$SUDOERS_ETC &>/dev/null
 
 cat $SUDOERS_ETC | $S_LOG -d "$S_NAME" -d "$SUDOERS_ETC" -i 
