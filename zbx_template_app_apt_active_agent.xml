@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>5.0</version>
-    <date>2021-07-07T09:42:35Z</date>
+    <date>2021-07-07T14:51:27Z</date>
     <groups>
         <group>
             <name>Templates/Futur-Tech/Modules Linux</name>
@@ -9,9 +9,10 @@
     </groups>
     <templates>
         <template>
-            <template>Template Futur-Tech Module Linux Debian Software Updates</template>
-            <name>Template Futur-Tech Module Linux Debian Software Updates</name>
-            <description>Only for Debian/Ubuntu</description>
+            <template>Template Futur-Tech App APT Linux Software Updates</template>
+            <name>Template Futur-Tech App APT Linux Software Updates</name>
+            <description>Only for Debian/Ubuntu&#13;
+https://github.com/Futur-Tech/futur-tech-zabbix-apt</description>
             <groups>
                 <group>
                     <name>Templates/Futur-Tech/Modules Linux</name>
@@ -30,43 +31,41 @@
                     <name>Software Updates</name>
                     <type>ZABBIX_ACTIVE</type>
                     <key>apt.upd_others</key>
-                    <delay>6h</delay>
+                    <delay>1h</delay>
                     <history>30d</history>
                     <value_type>FLOAT</value_type>
-                    <units>other update(s) available</units>
+                    <units>other update(s)</units>
                     <applications>
                         <application>
                             <name>Software Updates Panel</name>
                         </application>
                     </applications>
-                    <triggers>
-                        <trigger>
-                            <expression>{last()}&gt;0</expression>
-                            <name>{ITEM.LASTVALUE} update(s) available for {HOST.NAME}</name>
-                            <priority>INFO</priority>
-                        </trigger>
-                    </triggers>
+                    <preprocessing>
+                        <step>
+                            <type>DISCARD_UNCHANGED_HEARTBEAT</type>
+                            <params>1d</params>
+                        </step>
+                    </preprocessing>
                 </item>
                 <item>
                     <name>Software Security Updates</name>
                     <type>ZABBIX_ACTIVE</type>
                     <key>apt.upd_security</key>
-                    <delay>6h</delay>
+                    <delay>1h</delay>
                     <history>30d</history>
                     <value_type>FLOAT</value_type>
-                    <units>security update(s) available</units>
+                    <units>security update(s)</units>
                     <applications>
                         <application>
                             <name>Software Updates Panel</name>
                         </application>
                     </applications>
-                    <triggers>
-                        <trigger>
-                            <expression>{last()}&gt;0</expression>
-                            <name>{ITEM.LASTVALUE} security update(s) available for {HOST.NAME}</name>
-                            <priority>WARNING</priority>
-                        </trigger>
-                    </triggers>
+                    <preprocessing>
+                        <step>
+                            <type>DISCARD_UNCHANGED_HEARTBEAT</type>
+                            <params>1d</params>
+                        </step>
+                    </preprocessing>
                 </item>
                 <item>
                     <name>Log dpkg.log</name>
@@ -85,4 +84,12 @@
             </items>
         </template>
     </templates>
+    <triggers>
+        <trigger>
+            <expression>{Template Futur-Tech App APT Linux Software Updates:apt.upd_security.last()}&gt;0 or {Template Futur-Tech App APT Linux Software Updates:apt.upd_others.last()}&gt;0</expression>
+            <name>There are updates available</name>
+            <opdata>{ITEM.LASTVALUE} and {ITEM.LASTVALUE2}</opdata>
+            <priority>WARNING</priority>
+        </trigger>
+    </triggers>
 </zabbix_export>
