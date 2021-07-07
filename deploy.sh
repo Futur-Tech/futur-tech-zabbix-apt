@@ -6,6 +6,7 @@ APP_NAME="futur-tech-zabbix-apt"
 
 ZBX_CONF_AGENT_D="/etc/zabbix/zabbix_agentd.conf.d"
 SRC_DIR="/usr/local/src/${APP_NAME}"
+SUDOERS_ETC="/etc/sudoers.d/${APP_NAME}"
 
 $S_LOG -d $S_NAME "Start $S_DIR_NAME/$S_NAME $*"
 
@@ -25,6 +26,24 @@ then
 else
     $S_LOG -s crit -d "$S_NAME" "${APT_CONF_D} is missing"
 fi
+
+echo
+echo "------------------------------------------"
+echo "  SETUP SUDOERS FILE"
+echo "------------------------------------------"
+echo
+
+$S_LOG -d $S_NAME -d "$SUDOERS_ETC" "==============================="
+$S_LOG -d $S_NAME -d "$SUDOERS_ETC" "==== SUDOERS CONFIGURATION ===="
+$S_LOG -d $S_NAME -d "$SUDOERS_ETC" "==============================="
+
+echo "Defaults:zabbix !requiretty" | sudo EDITOR='tee' visudo --file=$SUDOERS_ETC &>/dev/null
+echo "zabbix ALL=(ALL) NOPASSWD:/usr/bin/apt update" | sudo EDITOR='tee -a' visudo --file=$SUDOERS_ETC &>/dev/null
+
+cat $SUDOERS_ETC | $S_LOG -d "$S_NAME" -d "$SUDOERS_ETC" -i 
+
+$S_LOG -d $S_NAME -d "$SUDOERS_ETC" "==============================="
+$S_LOG -d $S_NAME -d "$SUDOERS_ETC" "==============================="
 
 echo
 echo "------------------------------------------"
