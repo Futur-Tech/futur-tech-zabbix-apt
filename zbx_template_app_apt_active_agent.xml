@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>5.0</version>
+    <date>2021-07-07T09:42:35Z</date>
+    <groups>
+        <group>
+            <name>Templates/Futur-Tech/Modules Linux</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>Template Futur-Tech Module Linux Debian Software Updates</template>
+            <name>Template Futur-Tech Module Linux Debian Software Updates</name>
+            <description>Only for Debian/Ubuntu</description>
+            <groups>
+                <group>
+                    <name>Templates/Futur-Tech/Modules Linux</name>
+                </group>
+            </groups>
+            <applications>
+                <application>
+                    <name>Software Updates</name>
+                </application>
+                <application>
+                    <name>Software Updates Panel</name>
+                </application>
+            </applications>
+            <items>
+                <item>
+                    <name>Software Updates</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>apt.upd_others</key>
+                    <delay>6h</delay>
+                    <history>30d</history>
+                    <value_type>FLOAT</value_type>
+                    <units>other update(s) available</units>
+                    <applications>
+                        <application>
+                            <name>Software Updates Panel</name>
+                        </application>
+                    </applications>
+                    <triggers>
+                        <trigger>
+                            <expression>{last()}&gt;0</expression>
+                            <name>{ITEM.LASTVALUE} update(s) available for {HOST.NAME}</name>
+                            <priority>INFO</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>Software Security Updates</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>apt.upd_security</key>
+                    <delay>6h</delay>
+                    <history>30d</history>
+                    <value_type>FLOAT</value_type>
+                    <units>security update(s) available</units>
+                    <applications>
+                        <application>
+                            <name>Software Updates Panel</name>
+                        </application>
+                    </applications>
+                    <triggers>
+                        <trigger>
+                            <expression>{last()}&gt;0</expression>
+                            <name>{ITEM.LASTVALUE} security update(s) available for {HOST.NAME}</name>
+                            <priority>WARNING</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>Log dpkg.log</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>logrt[/var/log/dpkg.log,&quot; status (?|(not-installed\ .*)|(installed\ .*))&quot;,,100,skip,\1]</key>
+                    <trends>0</trends>
+                    <value_type>LOG</value_type>
+                    <description>Return packages installed and not-installed (after a successful remove).</description>
+                    <applications>
+                        <application>
+                            <name>Software Updates</name>
+                        </application>
+                    </applications>
+                    <logtimefmt>yyyy-MM-dd hh:mm:ss</logtimefmt>
+                </item>
+            </items>
+        </template>
+    </templates>
+</zabbix_export>
