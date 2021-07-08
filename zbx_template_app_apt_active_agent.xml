@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>5.0</version>
-    <date>2021-07-07T14:51:27Z</date>
+    <date>2021-07-08T08:16:16Z</date>
     <groups>
         <group>
             <name>Templates/Futur-Tech/Modules Linux</name>
@@ -28,7 +28,7 @@ https://github.com/Futur-Tech/futur-tech-zabbix-apt</description>
             </applications>
             <items>
                 <item>
-                    <name>Software Updates</name>
+                    <name>Noncritical Updates</name>
                     <type>ZABBIX_ACTIVE</type>
                     <key>apt.upd_others</key>
                     <delay>1h</delay>
@@ -48,7 +48,7 @@ https://github.com/Futur-Tech/futur-tech-zabbix-apt</description>
                     </preprocessing>
                 </item>
                 <item>
-                    <name>Software Security Updates</name>
+                    <name>Security Updates</name>
                     <type>ZABBIX_ACTIVE</type>
                     <key>apt.upd_security</key>
                     <delay>1h</delay>
