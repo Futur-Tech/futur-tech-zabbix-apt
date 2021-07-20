@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>5.0</version>
-    <date>2021-07-09T08:09:05Z</date>
+    <date>2021-07-20T14:00:43Z</date>
     <groups>
         <group>
             <name>Templates/Futur-Tech/Modules Linux</name>
@@ -80,6 +80,31 @@ https://github.com/Futur-Tech/futur-tech-zabbix-apt</description>
                         </application>
                     </applications>
                     <logtimefmt>yyyy-MM-dd hh:mm:ss</logtimefmt>
+                </item>
+                <item>
+                    <name>Reboot Required</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>vfs.file.exists[/var/run/reboot-required]</key>
+                    <delay>10m</delay>
+                    <applications>
+                        <application>
+                            <name>Software Updates Panel</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>DISCARD_UNCHANGED_HEARTBEAT</type>
+                            <params>1d</params>
+                        </step>
+                    </preprocessing>
+                    <triggers>
+                        <trigger>
+                            <expression>{last()}=1</expression>
+                            <name>Reboot required by Linux Updates</name>
+                            <priority>AVERAGE</priority>
+                            <description>Most probably due to kernel updates.</description>
+                        </trigger>
+                    </triggers>
                 </item>
             </items>
         </template>
