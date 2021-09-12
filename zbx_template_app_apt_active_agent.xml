@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>5.0</version>
-    <date>2021-08-30T07:58:29Z</date>
+    <date>2021-09-12T12:08:42Z</date>
     <groups>
         <group>
             <name>Templates/Futur-Tech/Modules Linux</name>
@@ -95,20 +95,6 @@ https://github.com/Futur-Tech/futur-tech-zabbix-apt</description>
                             <params>1d</params>
                         </step>
                     </preprocessing>
-                    <triggers>
-                        <trigger>
-                            <expression>{last()}&gt;0</expression>
-                            <name>There are security updates available</name>
-                            <opdata>{ITEM.LASTVALUE} and {ITEM.LASTVALUE2}</opdata>
-                            <priority>WARNING</priority>
-                            <dependencies>
-                                <dependency>
-                                    <name>There are updates available</name>
-                                    <expression>{Template Futur-Tech App APT Linux Software Updates:apt.upd_security.last()}&gt;0 or {Template Futur-Tech App APT Linux Software Updates:apt.upd_others.last()}&gt;0</expression>
-                                </dependency>
-                            </dependencies>
-                        </trigger>
-                    </triggers>
                 </item>
                 <item>
                     <name>Log dpkg.log</name>
@@ -157,10 +143,22 @@ https://github.com/Futur-Tech/futur-tech-zabbix-apt</description>
     </templates>
     <triggers>
         <trigger>
-            <expression>{Template Futur-Tech App APT Linux Software Updates:apt.upd_security.last()}&gt;0 or {Template Futur-Tech App APT Linux Software Updates:apt.upd_others.last()}&gt;0</expression>
+            <expression>{Template Futur-Tech App APT Linux Software Updates:apt.upd_security.last()}&gt;0 and {Template Futur-Tech App APT Linux Software Updates:apt.upd_others.last()}&gt;=0</expression>
+            <name>There are security updates available</name>
+            <opdata>{ITEM.LASTVALUE} and {ITEM.LASTVALUE2}</opdata>
+            <priority>WARNING</priority>
+        </trigger>
+        <trigger>
+            <expression>{Template Futur-Tech App APT Linux Software Updates:apt.upd_security.last()}&gt;=0 and {Template Futur-Tech App APT Linux Software Updates:apt.upd_others.last()}&gt;0</expression>
             <name>There are updates available</name>
             <opdata>{ITEM.LASTVALUE} and {ITEM.LASTVALUE2}</opdata>
             <priority>INFO</priority>
+            <dependencies>
+                <dependency>
+                    <name>There are security updates available</name>
+                    <expression>{Template Futur-Tech App APT Linux Software Updates:apt.upd_security.last()}&gt;0 and {Template Futur-Tech App APT Linux Software Updates:apt.upd_others.last()}&gt;=0</expression>
+                </dependency>
+            </dependencies>
         </trigger>
     </triggers>
     <value_maps>
