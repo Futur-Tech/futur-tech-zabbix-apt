@@ -1,7 +1,7 @@
 # Zabbix APT Monitoring
 Zabbix template for checking if there are some updates to apply.
 
-Works for Zabbix 5.x Active Agent
+Works for Zabbix 6.0 Active Agent
 
 ## Deploy Commands
 

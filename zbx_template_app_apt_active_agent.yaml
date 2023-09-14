@@ -1,0 +1,122 @@
+zabbix_export:
+  version: '6.0'
+  date: '2023-09-14T16:25:42Z'
+  groups:
+    - uuid: 22fefe9c6af648aea42d4e8522fd123a
+      name: 'Templates/Futur-Tech/Modules Linux'
+  templates:
+    - uuid: 51617d332ce64d778ede7c020fcb1efc
+      template: 'Futur-Tech App APT Linux Software Updates'
+      name: 'Futur-Tech App APT Linux Software Updates'
+      description: |
+        Only for Debian/Ubuntu
+        https://github.com/Futur-Tech/futur-tech-zabbix-apt
+      groups:
+        - name: 'Templates/Futur-Tech/Modules Linux'
+      items:
+        - uuid: 46ee69383ea345129a87c3945d47343c
+          name: 'Packages: kernel update'
+          type: ZABBIX_ACTIVE
+          key: apt.upd_kernel
+          delay: 10m
+          history: 30d
+          description: 'Kernel update available'
+          valuemap:
+            name: 'Generic YesNo'
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1d
+          tags:
+            - tag: Application
+              value: 'Software Updates Panel'
+          triggers:
+            - uuid: e6295f28d9a840c789f08bed74363df7
+              expression: 'last(/Futur-Tech App APT Linux Software Updates/apt.upd_kernel)=1'
+              name: 'Kernel update available'
+              priority: WARNING
+        - uuid: c30a14ae919547a899d4c5caa338aa82
+          name: 'Packages: noncritical updates'
+          type: ZABBIX_ACTIVE
+          key: apt.upd_others
+          delay: 10m
+          history: 30d
+          value_type: FLOAT
+          units: 'other update(s)'
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1d
+          tags:
+            - tag: Application
+              value: 'Software Updates Panel'
+        - uuid: 32febd1d4b7146389c7e58465adb9574
+          name: 'Packages: security updates'
+          type: ZABBIX_ACTIVE
+          key: apt.upd_security
+          delay: 10m
+          history: 30d
+          value_type: FLOAT
+          units: 'security update(s)'
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1d
+          tags:
+            - tag: Application
+              value: 'Software Updates Panel'
+        - uuid: 60dc8e0548164f72881c8ce033299b71
+          name: 'Packages: log dpkg.log'
+          type: ZABBIX_ACTIVE
+          key: 'logrt[/var/log/dpkg.log," status (?|(not-installed\ .*)|(installed\ .*))",,100,skip,\1]'
+          trends: '0'
+          value_type: LOG
+          description: 'Return packages installed and not-installed (after a successful remove).'
+          logtimefmt: 'yyyy-MM-dd hh:mm:ss'
+          tags:
+            - tag: Application
+              value: 'Software Updates'
+        - uuid: eadbe9c0a9d74abf8e554070cba5d0d4
+          name: 'Packages: reboot required'
+          type: ZABBIX_ACTIVE
+          key: 'vfs.file.exists[/var/run/reboot-required]'
+          delay: 10m
+          valuemap:
+            name: 'Generic YesNo'
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1d
+          tags:
+            - tag: Application
+              value: 'Software Updates Panel'
+          triggers:
+            - uuid: 21e57aeaf5a14a718526043734cf1019
+              expression: 'last(/Futur-Tech App APT Linux Software Updates/vfs.file.exists[/var/run/reboot-required])=1'
+              name: 'Reboot required by Linux Updates'
+              priority: AVERAGE
+              description: 'Most probably due to kernel updates.'
+      tags:
+        - tag: Futur-Tech
+      valuemaps:
+        - uuid: 87b8a376d95540de87c75e806e94190d
+          name: 'Generic YesNo'
+          mappings:
+            - value: '0'
+              newvalue: 'No'
+            - value: '1'
+              newvalue: 'Yes'
+  triggers:
+    - uuid: f4b05322bd9e484abb42ccf425e5ac95
+      expression: 'last(/Futur-Tech App APT Linux Software Updates/apt.upd_security)>0 and last(/Futur-Tech App APT Linux Software Updates/apt.upd_others)>=0'
+      name: 'There are security updates available'
+      opdata: '{ITEM.LASTVALUE} and {ITEM.LASTVALUE2}'
+      priority: WARNING
+    - uuid: a75cdcfe81a04586b3b2600d05aa98e3
+      expression: 'last(/Futur-Tech App APT Linux Software Updates/apt.upd_security)>=0 and last(/Futur-Tech App APT Linux Software Updates/apt.upd_others)>0'
+      name: 'There are updates available'
+      opdata: '{ITEM.LASTVALUE} and {ITEM.LASTVALUE2}'
+      priority: INFO
+      dependencies:
+        - name: 'There are security updates available'
+          expression: 'last(/Futur-Tech App APT Linux Software Updates/apt.upd_security)>0 and last(/Futur-Tech App APT Linux Software Updates/apt.upd_others)>=0'
