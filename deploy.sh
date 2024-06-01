@@ -10,8 +10,8 @@ app_name="futur-tech-zabbix-apt"
 $(which zabbix_agent2 >/dev/null) && zbx_conf_agent_d="/etc/zabbix/zabbix_agent2.d"
 $(which zabbix_agentd >/dev/null) && zbx_conf_agent_d="/etc/zabbix/zabbix_agentd.conf.d"
 if [ ! -d "${zbx_conf_agent_d}" ]; then
-  $S_LOG -s crit -d $S_NAME "${zbx_conf_agent_d} Zabbix Include directory not found"
-  exit 10
+    $S_LOG -s crit -d $S_NAME "${zbx_conf_agent_d} Zabbix Include directory not found"
+    exit 10
 fi
 
 echo "
@@ -20,14 +20,16 @@ echo "
 
 apt_conf_d="/etc/apt/apt.conf.d"
 if [ -d "${apt_conf_d}" ]; then
-  $S_DIR/ft-util/ft_util_file-deploy "$S_DIR/etc.zabbix/${app_name}.conf" "${zbx_conf_agent_d}/${app_name}.conf"
+    $S_DIR/ft-util/ft_util_file-deploy "$S_DIR/etc.zabbix/${app_name}.conf" "${zbx_conf_agent_d}/${app_name}.conf"
 
-  bak_if_exist ${apt_conf_d}/02ft-zabbix-apt
-  echo 'APT::Periodic::Enable "1";' >${apt_conf_d}/02ft-zabbix-apt
-  echo 'APT::Periodic::Update-Package-Lists "1";' >>${apt_conf_d}/02ft-zabbix-apt
-  show_bak_diff_rm ${apt_conf_d}/02ft-zabbix-apt
+    bak_if_exist ${apt_conf_d}/02ft-zabbix-apt
+    echo '// Deployed by futur-tech-zabbix-apt
+APT::Periodic::Enable "1";
+APT::Periodic::Download-Upgradeable-Packages 1;
+APT::Periodic::AutocleanInterval 1;' >${apt_conf_d}/02ft-zabbix-apt
+    show_bak_diff_rm ${apt_conf_d}/02ft-zabbix-apt
 else
-  $S_LOG -s crit -d "$S_NAME" "${apt_conf_d} is missing"
+    $S_LOG -s crit -d "$S_NAME" "${apt_conf_d} is missing"
 fi
 
 echo "
