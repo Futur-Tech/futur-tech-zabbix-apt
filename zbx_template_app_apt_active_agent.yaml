@@ -1,7 +1,6 @@
 zabbix_export:
-  version: '6.0'
-  date: '2023-09-14T16:25:42Z'
-  groups:
+  version: '7.0'
+  template_groups:
     - uuid: 22fefe9c6af648aea42d4e8522fd123a
       name: 'Templates/Futur-Tech/Modules Linux'
   templates:
@@ -14,13 +13,64 @@ zabbix_export:
       groups:
         - name: 'Templates/Futur-Tech/Modules Linux'
       items:
+        - uuid: 2b630fa8fbc949fe9c7ba8dcbcf0718f
+          name: 'Packages: list autoremove'
+          type: ZABBIX_ACTIVE
+          key: apt.autoremove_list
+          delay: 15m
+          history: 90d
+          value_type: TEXT
+          trends: '0'
+          description: 'List packages that would be removed by an autoremove operation'
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1d
+          tags:
+            - tag: component
+              value: system
+          triggers:
+            - uuid: 257579ebb593443ca18f1f8ec5826dff
+              expression: 'length(last(/Futur-Tech App APT Linux Software Updates/apt.autoremove_list))>0'
+              name: 'Autoremove suggested (unused packages detected)'
+              opdata: '{ITEM.LASTVALUE}'
+              priority: INFO
+              tags:
+                - tag: scope
+                  value: notice
+        - uuid: 1c48ba977d2543fe860a55b4616b9202
+          name: 'Packages: list hold'
+          type: ZABBIX_ACTIVE
+          key: apt.hold_list
+          delay: 15m
+          history: 90d
+          value_type: TEXT
+          trends: '0'
+          description: 'List packages placed on hold (prevented from upgrading)'
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1d
+          tags:
+            - tag: component
+              value: system
+          triggers:
+            - uuid: 7a4726ce5012443eaf95e936e43769dd
+              expression: 'length(last(/Futur-Tech App APT Linux Software Updates/apt.hold_list))>0'
+              name: 'Packages on hold detected'
+              opdata: '{ITEM.LASTVALUE}'
+              priority: WARNING
+              description: 'One or more packages are marked as hold, preventing them from being upgraded. This may be intentional or could indicate an unresolved dependency issue.'
+              tags:
+                - tag: scope
+                  value: notice
         - uuid: 46ee69383ea345129a87c3945d47343c
           name: 'Packages: kernel update'
           type: ZABBIX_ACTIVE
           key: apt.upd_kernel
-          delay: 10m
-          history: 30d
-          description: 'Kernel update available'
+          delay: 15m
+          history: 90d
+          description: 'Detect whether a kernel update is available'
           valuemap:
             name: 'Generic YesNo'
           preprocessing:
@@ -28,59 +78,81 @@ zabbix_export:
               parameters:
                 - 1d
           tags:
-            - tag: Application
-              value: 'Software Updates Panel'
+            - tag: component
+              value: system
           triggers:
             - uuid: e6295f28d9a840c789f08bed74363df7
               expression: 'last(/Futur-Tech App APT Linux Software Updates/apt.upd_kernel)=1'
               name: 'Kernel update available'
               priority: WARNING
+              description: 'APT has detected packages that are no longer needed and can be safely removed. Cleaning them helps free disk space and keep the system optimized.'
+              tags:
+                - tag: scope
+                  value: security
+        - uuid: d30e4351b76b47148ee3c3268f1ad192
+          name: 'Packages: list updates'
+          type: ZABBIX_ACTIVE
+          key: apt.upd_list
+          delay: 15m
+          history: 90d
+          value_type: TEXT
+          trends: '0'
+          description: 'List all packages that can be upgraded'
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1d
+          tags:
+            - tag: component
+              value: system
         - uuid: c30a14ae919547a899d4c5caa338aa82
           name: 'Packages: noncritical updates'
           type: ZABBIX_ACTIVE
           key: apt.upd_others
-          delay: 10m
-          history: 30d
+          delay: 15m
+          history: 90d
           value_type: FLOAT
-          units: 'other update(s)'
+          units: 'other updates'
           preprocessing:
             - type: DISCARD_UNCHANGED_HEARTBEAT
               parameters:
                 - 1d
           tags:
-            - tag: Application
-              value: 'Software Updates Panel'
+            - tag: component
+              value: system
         - uuid: 32febd1d4b7146389c7e58465adb9574
           name: 'Packages: security updates'
           type: ZABBIX_ACTIVE
           key: apt.upd_security
-          delay: 10m
-          history: 30d
+          delay: 15m
+          history: 90d
           value_type: FLOAT
-          units: 'security update(s)'
+          units: 'security updates'
           preprocessing:
             - type: DISCARD_UNCHANGED_HEARTBEAT
               parameters:
                 - 1d
           tags:
-            - tag: Application
-              value: 'Software Updates Panel'
+            - tag: component
+              value: system
         - uuid: 60dc8e0548164f72881c8ce033299b71
           name: 'Packages: log dpkg.log'
           type: ZABBIX_ACTIVE
           key: 'logrt[/var/log/dpkg.log," status (?|(not-installed\ .*)|(installed\ .*))",,100,skip,\1]'
-          trends: '0'
+          history: 90d
           value_type: LOG
+          trends: '0'
           description: 'Return packages installed and not-installed (after a successful remove).'
           logtimefmt: 'yyyy-MM-dd hh:mm:ss'
           tags:
-            - tag: Application
-              value: 'Software Updates'
+            - tag: component
+              value: system
         - uuid: eadbe9c0a9d74abf8e554070cba5d0d4
           name: 'Packages: reboot required'
           type: ZABBIX_ACTIVE
           key: 'vfs.file.exists[/var/run/reboot-required]'
-          delay: 10m
+          delay: 15m
+          history: 90d
           valuemap:
             name: 'Generic YesNo'
           preprocessing:
@@ -88,16 +160,23 @@ zabbix_export:
               parameters:
                 - 1d
           tags:
-            - tag: Application
-              value: 'Software Updates Panel'
+            - tag: component
+              value: system
           triggers:
             - uuid: 21e57aeaf5a14a718526043734cf1019
               expression: 'last(/Futur-Tech App APT Linux Software Updates/vfs.file.exists[/var/run/reboot-required])=1'
-              name: 'Reboot required by Linux Updates'
+              name: 'Reboot required'
               priority: AVERAGE
               description: 'Most probably due to kernel updates.'
+              tags:
+                - tag: scope
+                  value: security
       tags:
+        - tag: class
+          value: software
         - tag: Futur-Tech
+        - tag: target
+          value: apt
       valuemaps:
         - uuid: 87b8a376d95540de87c75e806e94190d
           name: 'Generic YesNo'
@@ -108,15 +187,23 @@ zabbix_export:
               newvalue: 'Yes'
   triggers:
     - uuid: f4b05322bd9e484abb42ccf425e5ac95
-      expression: 'last(/Futur-Tech App APT Linux Software Updates/apt.upd_security)>0 and last(/Futur-Tech App APT Linux Software Updates/apt.upd_others)>=0'
-      name: 'There are security updates available'
-      opdata: '{ITEM.LASTVALUE} and {ITEM.LASTVALUE2}'
+      expression: 'last(/Futur-Tech App APT Linux Software Updates/apt.upd_security)>0 and (last(/Futur-Tech App APT Linux Software Updates/apt.upd_others)>=0 and length(last(/Futur-Tech App APT Linux Software Updates/apt.upd_list))>0)'
+      name: 'Security updates available'
+      opdata: '{ITEM.LASTVALUE} / {ITEM.LASTVALUE2} / List: {ITEM.LASTVALUE3}'
       priority: WARNING
+      description: 'Security-related updates are available for installation. These updates typically include patches for vulnerabilities and should be applied as soon as possible.'
+      tags:
+        - tag: scope
+          value: security
     - uuid: a75cdcfe81a04586b3b2600d05aa98e3
-      expression: 'last(/Futur-Tech App APT Linux Software Updates/apt.upd_security)>=0 and last(/Futur-Tech App APT Linux Software Updates/apt.upd_others)>0'
-      name: 'There are updates available'
-      opdata: '{ITEM.LASTVALUE} and {ITEM.LASTVALUE2}'
+      expression: 'last(/Futur-Tech App APT Linux Software Updates/apt.upd_security)>=0 and (last(/Futur-Tech App APT Linux Software Updates/apt.upd_others)>0 and length(last(/Futur-Tech App APT Linux Software Updates/apt.upd_list))>0)'
+      name: 'Standard updates available'
+      opdata: '{ITEM.LASTVALUE} / {ITEM.LASTVALUE2} / List: {ITEM.LASTVALUE3}'
       priority: INFO
+      description: 'Regular package updates are available. While not security-critical, applying them helps maintain system stability and compatibility.'
       dependencies:
-        - name: 'There are security updates available'
-          expression: 'last(/Futur-Tech App APT Linux Software Updates/apt.upd_security)>0 and last(/Futur-Tech App APT Linux Software Updates/apt.upd_others)>=0'
+        - name: 'Security updates available'
+          expression: 'last(/Futur-Tech App APT Linux Software Updates/apt.upd_security)>0 and (last(/Futur-Tech App APT Linux Software Updates/apt.upd_others)>=0 and length(last(/Futur-Tech App APT Linux Software Updates/apt.upd_list))>0)'
+      tags:
+        - tag: scope
+          value: notice
