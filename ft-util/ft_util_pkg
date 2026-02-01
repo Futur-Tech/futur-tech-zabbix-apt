@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+source "$(dirname "$0")/ft_util_inc_var"
+
+while getopts "iu" o; do
+    case "${o}" in
+    i)
+        install=true
+        ;;
+    u)
+        update=true
+        ;;
+    esac
+done
+
+shift "$((OPTIND - 1))"
+
+pkg_arr=("$@")
+
+if [ "$update" = true ]; then
+    apt-get update -qq
+    $S_LOG -s $? -d $S_NAME "Package list update returned exit_code=$?"
+fi
+
+# This var will increment for each pkg not found BUT will decrement if the package is successfully installed
+not_installed=0
+
+for pkg in "${pkg_arr[@]}"; do
+    pkg_ok=$(dpkg-query -W --showformat='${Status}\n' $pkg 2>/dev/null | grep " ok installed")
+    if [ "" = "$pkg_ok" ]; then
+        let not_installed++
+
+        if [ "$install" = true ]; then
+            $S_LOG -s warn -d $S_NAME -d "$pkg" "Missing needed package "$pkg". Setting up $pkg."
+
+            # https://linuxhint.com/debian_frontend_noninteractive/
+            # https://askubuntu.com/a/668859
+            # DEBIAN_FRONTEND=noninteractive \
+            #     apt-get -qq install \
+            #     -o Dpkg::Options::="--force-confnew" \
+            #     -o Dpkg::Use-Pty=0 \
+            #     $pkg \
+            #     2> >($S_LOG -s err -d $S_NAME -d "apt-get" -d "$pkg" -i) > >($S_LOG -d $S_NAME -d "apt-get" -d "$pkg" -i)
+
+            # https://peteris.rocks/blog/quiet-and-unattended-installation-with-apt-get/
+            DEBIAN_FRONTEND=noninteractive apt-get install -qq $pkg </dev/null >/dev/null
+
+            if [ $? != "0" ]; then
+                $S_LOG -s crit -d $S_NAME -d "$pkg" "Failed to install needed packages ("$pkg"). Please fix it and re-run the script."
+            else
+                let not_installed--
+                $S_LOG -d $S_NAME -d "$pkg" "Successful install of needed packages ("$pkg")."
+            fi
+        fi
+    fi
+done
+
+exit $not_installed

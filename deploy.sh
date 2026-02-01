@@ -10,28 +10,39 @@ app_name="futur-tech-zabbix-apt"
 $(which zabbix_agent2 >/dev/null) && zbx_conf_agent_d="/etc/zabbix/zabbix_agent2.d"
 $(which zabbix_agentd >/dev/null) && zbx_conf_agent_d="/etc/zabbix/zabbix_agentd.conf.d"
 if [ ! -d "${zbx_conf_agent_d}" ]; then
-  $S_LOG -s crit -d $S_NAME "${zbx_conf_agent_d} Zabbix Include directory not found"
-  exit 10
+    $S_LOG -s crit -d $S_NAME "${zbx_conf_agent_d} Zabbix Include directory not found"
+    exit 10
 fi
 
 echo "
   INSTALL NEEDED PACKAGES & FILES
 ------------------------------------------"
 
-apt_conf_d="/etc/apt/apt.conf.d"
-if [ -d "${apt_conf_d}" ]; then
-  $S_DIR/ft-util/ft_util_file-deploy "$S_DIR/etc.zabbix/${app_name}.conf" "${zbx_conf_agent_d}/${app_name}.conf"
+$S_DIR/ft-util/ft_util_file-deploy "$S_DIR/etc.zabbix/${app_name}.conf" "${zbx_conf_agent_d}/${app_name}.conf"
 
-  # More info: https://wiki.debian.org/UnattendedUpgrades
-  bak_if_exist ${apt_conf_d}/02ft-zabbix-apt
-  echo '// Deployed by futur-tech-zabbix-apt
+apt_conf_d="/etc/apt/apt.conf.d"
+auto_download_upgrade_conf="${apt_conf_d}/02ft-zabbix-apt"
+if [ -d "${apt_conf_d}" ]; then
+
+    # Check if unattended-upgrades is installed
+    if $S_DIR_PATH/ft-util/ft_util_pkg "unattended-upgrades"; then
+        if [ -f "${auto_download_upgrade_conf}" ]; then
+            $S_LOG -s warn -d "$S_NAME" "unattended-upgrades detected; removing legacy APT auto-download configuration"
+            run_cmd_log rm -vf $auto_download_upgrade_conf
+        fi
+    else
+        # Setup automatic download of package upgrade
+        # More info: https://wiki.debian.org/UnattendedUpgrades
+        bak_if_exist ${auto_download_upgrade_conf}
+        echo '// Deployed by futur-tech-zabbix-apt
 APT::Periodic::Enable "1";
 APT::Periodic::Update-Package-Lists "1";
 APT::Periodic::Download-Upgradeable-Packages "1"; 
-APT::Periodic::AutocleanInterval "21";' >${apt_conf_d}/02ft-zabbix-apt
-  show_bak_diff_rm ${apt_conf_d}/02ft-zabbix-apt
+APT::Periodic::AutocleanInterval "21";' >${auto_download_upgrade_conf}
+        show_bak_diff_rm ${auto_download_upgrade_conf}
+    fi
 else
-  $S_LOG -s crit -d "$S_NAME" "${apt_conf_d} is missing"
+    $S_LOG -s crit -d "$S_NAME" "${apt_conf_d} is missing"
 fi
 
 echo "
