@@ -17,6 +17,8 @@ fi
 echo "
   INSTALL NEEDED PACKAGES & FILES
 ------------------------------------------"
+# Install pkg
+$S_DIR_PATH/ft-util/ft_util_pkg -i "needrestart" || exit 1
 
 $S_DIR/ft-util/ft_util_file-deploy "$S_DIR/etc.zabbix/${app_name}.conf" "${zbx_conf_agent_d}/${app_name}.conf"
 
@@ -52,7 +54,9 @@ echo "
 bak_if_exist "/etc/sudoers.d/${app_name}"
 sudoersd_reset_file $app_name zabbix
 sudoersd_addto_file $app_name zabbix "${S_DIR_PATH}/deploy-update.sh"
-sudoersd_addto_file $app_name zabbix "/usr/bin/apt update"
+sudoersd_addto_file $app_name zabbix "$(type -p apt) update"
+sudoersd_addto_file $app_name zabbix "$(type -p needrestart) -b -k"
+sudoersd_addto_file $app_name zabbix "$(type -p needrestart) -b -l"
 show_bak_diff_rm "/etc/sudoers.d/${app_name}"
 
 echo "

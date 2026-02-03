@@ -10,11 +10,14 @@ zabbix_export:
       description: |
         Only for Debian/Ubuntu
         https://github.com/Futur-Tech/futur-tech-zabbix-apt
+      vendor:
+        name: Futur-Tech
+        version: 7.0-2
       groups:
         - name: 'Templates/Futur-Tech/Modules Linux'
       items:
         - uuid: 2b630fa8fbc949fe9c7ba8dcbcf0718f
-          name: 'Packages: list autoremove'
+          name: 'Packages: List autoremove'
           type: ZABBIX_ACTIVE
           key: apt.autoremove_list
           delay: 15m
@@ -28,7 +31,7 @@ zabbix_export:
                 - 1d
           tags:
             - tag: component
-              value: system
+              value: os
           triggers:
             - uuid: 257579ebb593443ca18f1f8ec5826dff
               expression: 'length(last(/Futur-Tech App APT Linux Software Updates/apt.autoremove_list))>0'
@@ -39,7 +42,7 @@ zabbix_export:
                 - tag: scope
                   value: notice
         - uuid: 1c48ba977d2543fe860a55b4616b9202
-          name: 'Packages: list hold'
+          name: 'Packages: List hold'
           type: ZABBIX_ACTIVE
           key: apt.hold_list
           delay: 15m
@@ -53,7 +56,7 @@ zabbix_export:
                 - 1d
           tags:
             - tag: component
-              value: system
+              value: os
           triggers:
             - uuid: 7a4726ce5012443eaf95e936e43769dd
               expression: 'length(last(/Futur-Tech App APT Linux Software Updates/apt.hold_list))>0'
@@ -65,7 +68,7 @@ zabbix_export:
                 - tag: scope
                   value: notice
         - uuid: 46ee69383ea345129a87c3945d47343c
-          name: 'Packages: kernel update'
+          name: 'Packages: Kernel update'
           type: ZABBIX_ACTIVE
           key: apt.upd_kernel
           delay: 15m
@@ -79,7 +82,7 @@ zabbix_export:
                 - 1d
           tags:
             - tag: component
-              value: system
+              value: os
           triggers:
             - uuid: e6295f28d9a840c789f08bed74363df7
               expression: 'last(/Futur-Tech App APT Linux Software Updates/apt.upd_kernel)=1'
@@ -90,7 +93,7 @@ zabbix_export:
                 - tag: scope
                   value: security
         - uuid: d30e4351b76b47148ee3c3268f1ad192
-          name: 'Packages: list updates'
+          name: 'Packages: List updates'
           type: ZABBIX_ACTIVE
           key: apt.upd_list
           delay: 15m
@@ -104,9 +107,9 @@ zabbix_export:
                 - 1d
           tags:
             - tag: component
-              value: system
+              value: os
         - uuid: c30a14ae919547a899d4c5caa338aa82
-          name: 'Packages: noncritical updates'
+          name: 'Packages: Noncritical updates'
           type: ZABBIX_ACTIVE
           key: apt.upd_others
           delay: 15m
@@ -119,9 +122,9 @@ zabbix_export:
                 - 1d
           tags:
             - tag: component
-              value: system
+              value: os
         - uuid: 32febd1d4b7146389c7e58465adb9574
-          name: 'Packages: security updates'
+          name: 'Packages: Security updates'
           type: ZABBIX_ACTIVE
           key: apt.upd_security
           delay: 15m
@@ -134,9 +137,61 @@ zabbix_export:
                 - 1d
           tags:
             - tag: component
-              value: system
+              value: os
+        - uuid: e871bfe85e06438cb1e78f751a3b6f84
+          name: 'Dpkg: List broken packages'
+          type: ZABBIX_ACTIVE
+          key: dpkg.broken
+          delay: 15m
+          history: 90d
+          value_type: TEXT
+          trends: '0'
+          description: 'List of installed packages not marked as ''ok'' in the dpkg database.'
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1d
+          tags:
+            - tag: component
+              value: os
+          triggers:
+            - uuid: 3eed1e9837434e488309efc0170dc8ae
+              expression: 'length(last(/Futur-Tech App APT Linux Software Updates/dpkg.broken))>0'
+              name: 'Broken packages detected'
+              opdata: '{ITEM.LASTVALUE}'
+              priority: HIGH
+              description: 'One or more installed packages are in a broken state and require manual repair.'
+              tags:
+                - tag: scope
+                  value: availability
+        - uuid: 3fb73e5b58234e25b53cb706eac0bcc0
+          name: 'Dpkg: List problematic packages'
+          type: ZABBIX_ACTIVE
+          key: dpkg.problematic
+          delay: 15m
+          history: 90d
+          value_type: TEXT
+          trends: '0'
+          description: 'List of packages not in ''installed'' or ''config-files'' state.'
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1d
+          tags:
+            - tag: component
+              value: os
+          triggers:
+            - uuid: 5efbb3b6867b42d8b09672822c531218
+              expression: 'length(last(/Futur-Tech App APT Linux Software Updates/dpkg.problematic))>0'
+              name: 'Problematic packages detected'
+              opdata: '{ITEM.LASTVALUE}'
+              priority: HIGH
+              description: 'One or more installed packages are in an abnormal state and may require corrective action.'
+              tags:
+                - tag: scope
+                  value: availability
         - uuid: 60dc8e0548164f72881c8ce033299b71
-          name: 'Packages: log dpkg.log'
+          name: 'Dpkg: Log dpkg.log'
           type: ZABBIX_ACTIVE
           key: 'logrt[/var/log/dpkg.log," status (?|(not-installed\ .*)|(installed\ .*))",,100,skip,\1]'
           history: 90d
@@ -146,9 +201,83 @@ zabbix_export:
           logtimefmt: 'yyyy-MM-dd hh:mm:ss'
           tags:
             - tag: component
-              value: system
+              value: os
+        - uuid: 7795352f1d2843a2bff7c4880a4a7c37
+          name: 'Needrestart: Kernel status'
+          type: ZABBIX_ACTIVE
+          key: needrestart.kernel
+          delay: 15m
+          history: 90d
+          valuemap:
+            name: 'Needrestart Kernel Status'
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1d
+          tags:
+            - tag: component
+              value: os
+          triggers:
+            - uuid: 5eb0712786db4e7c9f569e02fdf2938b
+              expression: 'last(/Futur-Tech App APT Linux Software Updates/needrestart.kernel)<>1'
+              name: 'Running kernel is not up to date'
+              opdata: 'Status: {ITEM.LASTVALUE}'
+              priority: AVERAGE
+              tags:
+                - tag: scope
+                  value: security
+        - uuid: 9087af17ca60456dba259a675af3af3d
+          name: 'Needrestart: Processes requiring restart'
+          type: ZABBIX_ACTIVE
+          key: needrestart.pid
+          delay: 15m
+          history: 90d
+          value_type: TEXT
+          trends: '0'
+          description: 'Processes needing restart after library upgrades.'
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1d
+          tags:
+            - tag: component
+              value: os
+          triggers:
+            - uuid: a32e201d87db4b52a1c2a8d35ec5b184
+              expression: 'length(last(/Futur-Tech App APT Linux Software Updates/needrestart.pid))>0'
+              name: 'One or more running processes are using outdated files'
+              opdata: 'Processes requiring restart: {ITEM.LASTVALUE}'
+              priority: AVERAGE
+              tags:
+                - tag: scope
+                  value: security
+        - uuid: 2df3d6f399704f55ab4b521e46536bef
+          name: 'Needrestart: Services requiring restart'
+          type: ZABBIX_ACTIVE
+          key: needrestart.svc
+          delay: 15m
+          history: 90d
+          value_type: TEXT
+          trends: '0'
+          description: 'Services needing restart after library upgrades.'
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1d
+          tags:
+            - tag: component
+              value: os
+          triggers:
+            - uuid: 29d349c5cfe94e78ad6eeb9cc7146cbb
+              expression: 'length(last(/Futur-Tech App APT Linux Software Updates/needrestart.svc))>0'
+              name: 'One or more running services are using outdated files'
+              opdata: 'Services requiring restart: {ITEM.LASTVALUE}'
+              priority: AVERAGE
+              tags:
+                - tag: scope
+                  value: security
         - uuid: eadbe9c0a9d74abf8e554070cba5d0d4
-          name: 'Packages: reboot required'
+          name: 'Packages: Reboot required'
           type: ZABBIX_ACTIVE
           key: 'vfs.file.exists[/var/run/reboot-required]'
           delay: 15m
@@ -161,7 +290,7 @@ zabbix_export:
                 - 1d
           tags:
             - tag: component
-              value: system
+              value: os
           triggers:
             - uuid: 21e57aeaf5a14a718526043734cf1019
               expression: 'last(/Futur-Tech App APT Linux Software Updates/vfs.file.exists[/var/run/reboot-required])=1'
@@ -170,7 +299,7 @@ zabbix_export:
               description: 'Most probably due to kernel updates.'
               tags:
                 - tag: scope
-                  value: security
+                  value: availability
       tags:
         - tag: class
           value: software
@@ -185,6 +314,17 @@ zabbix_export:
               newvalue: 'No'
             - value: '1'
               newvalue: 'Yes'
+        - uuid: d9125d66f8b34dc192bcb606603cd5c7
+          name: 'Needrestart Kernel Status'
+          mappings:
+            - value: '0'
+              newvalue: Unknown
+            - value: '1'
+              newvalue: 'Up to date'
+            - value: '2'
+              newvalue: 'Update installed, reboot recommended'
+            - value: '3'
+              newvalue: 'Update installed, reboot required'
   triggers:
     - uuid: f4b05322bd9e484abb42ccf425e5ac95
       expression: 'last(/Futur-Tech App APT Linux Software Updates/apt.upd_security)>0 and (last(/Futur-Tech App APT Linux Software Updates/apt.upd_others)>=0 and length(last(/Futur-Tech App APT Linux Software Updates/apt.upd_list))>0)'
