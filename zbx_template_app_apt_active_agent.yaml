@@ -202,6 +202,26 @@ zabbix_export:
           tags:
             - tag: component
               value: os
+        - uuid: ae2be2b30f0642a9a64eed074fff0f3a
+          name: 'Unattended-upgrades: Log unattended-upgrades.log'
+          type: ZABBIX_ACTIVE
+          key: 'logrt[/var/log/unattended-upgrades/unattended-upgrades.log]'
+          history: 90d
+          value_type: LOG
+          trends: '0'
+          description: 'Collect raw unattended-upgrades log lines for troubleshooting and alerting.'
+          logtimefmt: 'yyyy-MM-dd hh:mm:ss'
+          tags:
+            - tag: component
+              value: os
+          triggers:
+            - uuid: 237b3342293b44809ab895f83dce04dd
+              expression: 'count(/Futur-Tech App APT Linux Software Updates/logrt[/var/log/unattended-upgrades/unattended-upgrades.log],1h,"regexp","INFO All upgrades installed$")>0 and now()>0'
+              name: 'Unattended-upgrades installed updates in last 1h'
+              priority: INFO
+              tags:
+                - tag: scope
+                  value: notice
         - uuid: 7795352f1d2843a2bff7c4880a4a7c37
           name: 'Needrestart: Kernel status'
           type: ZABBIX_ACTIVE
